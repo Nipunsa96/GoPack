@@ -1,0 +1,55 @@
+#!/bin/bash
+
+SRC_DIR="./src/go"
+TARGET_DIR="./target"
+MAIN_FILE="$SRC_DIR/main.go"
+EXECUTABLE="$TARGET_DIR/main"
+
+echo "SRC_DIR: $SRC_DIR"
+echo "MAIN_FILE: $MAIN_FILE"
+
+# Function to compile the Go source code
+compile() {
+    echo "Compiling the project..."
+    mkdir -p "$TARGET_DIR"
+    if [ -f "$MAIN_FILE" ]; then
+        go build -o "$EXECUTABLE" "$MAIN_FILE"
+        if [ $? -eq 0 ]; then
+            echo "Compilation successful! Executable created at $EXECUTABLE"
+        else
+            echo "Compilation failed."
+        fi
+    else
+        echo "Error: $MAIN_FILE not found."
+    fi
+}
+
+# Function to clean the target directory
+clean() {
+    echo "Cleaning the target directory..."
+    rm -rf "$TARGET_DIR"
+    echo "Cleaned."
+}
+
+# Function to run the Go source code
+run() {
+    echo "Running the project..."
+    go run "$MAIN_FILE"
+}
+
+# Command-line interface
+case "$1" in
+    compile)
+        compile
+        ;;
+    clean)
+        clean
+        ;;
+    run)
+        run
+        ;;
+    *)
+        echo "Usage: $0 {compile|clean|run}"
+        exit 1
+        ;;
+esac
