@@ -5,12 +5,34 @@ TARGET_DIR="./target"
 MAIN_FILE="$SRC_DIR/main.go"
 EXECUTABLE="$TARGET_DIR/main"
 
+LIPGLOSS_PACKAGE="github.com/charmbracelet/lipgloss"
+
 echo "SRC_DIR: $SRC_DIR"
 echo "MAIN_FILE: $MAIN_FILE"
+
+# Function to download dependencies from GitHub
+install_dependency() {
+    local package=$1
+    echo "Checking if dependency $package is installed..."
+
+    if go list -m -f '{{.Dir}}' $package &>/dev/null; then
+        echo "Dependency $package already exists."
+    else
+        echo "Dependency $package not found. Installing..."
+        go get $package
+        if [ $? -eq 0 ]; then
+            echo "Successfully installed $package."
+        else
+            echo "Failed to install $package."
+            exit 1
+        fi
+    fi
+}
 
 # Function to compile the Go source code
 compile() {
     echo "Compiling the project..."
+    install_dependency "$LIPGLOSS_PACKAGE"
     mkdir -p "$TARGET_DIR"
     if [ -f "$MAIN_FILE" ]; then
         go build -o "$EXECUTABLE" "$MAIN_FILE"
