@@ -15,10 +15,19 @@ install_dependency() {
     local package=$1
     echo "Checking if dependency $package is installed..."
 
-    if go list -m -f '{{.Dir}}' $package &>/dev/null; then
+    # Cross-platform check for Go module directory
+    if [ "$OS" = "Windows_NT" ]; then
+        go list -m -f "{{.Dir}}" $package > nul 2>&1
+    else
+        go list -m -f "{{.Dir}}" $package >/dev/null 2>&1
+    fi
+
+    # Check the result of the previous command
+    if [ $? -eq 0 ]; then
         echo "Dependency $package already exists."
     else
         echo "Dependency $package not found. Installing..."
+
         go get $package
         if [ $? -eq 0 ]; then
             echo "Successfully installed $package."
@@ -28,6 +37,7 @@ install_dependency() {
         fi
     fi
 }
+
 
 # Function to compile the Go source code
 compile() {
